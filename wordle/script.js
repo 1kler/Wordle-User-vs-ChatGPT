@@ -93,9 +93,11 @@ function handleEnter(){
     currentTileIndex = 0; // Reset for the next row
 
     if (currentRowIndex === maxGuesses) {
-        // Handle loss condition here
-        console.log("Game Over! The word was:", answer);
-        // Optionally, show a "loser" message
+        loserState();
+        // Disable further input if you want
+        Array.from(document.querySelectorAll('.active')).forEach(tile => {
+            tile.classList.remove("active");
+        });
     } else {
         // Prepare the next row by adding 'free' class
         const nextRow = document.querySelectorAll('.row')[currentRowIndex];
@@ -171,5 +173,12 @@ function answerCheck(guess){
 
 function winnerState(){
     const winMessage = document.querySelector('.message')
+    winMessage.textContent = `Congratulations!`;
     winMessage.classList.add("show")
+}
+
+function loserState(){
+    const loseMessage = document.querySelector('.message')
+    loseMessage.textContent = `Game Over! The word was: ${answer}`;
+    loseMessage.classList.add("show")
 }
