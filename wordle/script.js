@@ -29,11 +29,20 @@ window.addEventListener("DOMContentLoaded", async () => {
 Array.from(buttons).forEach(element => 
     element.addEventListener("click", handleKeyClick))
 
+addEventListener("keydown", handleKeyDown)
+
 function handleKeyClick(e){
 const key = e.target.dataset.key;
   if (key === 'Backspace') handleBackspace();
   else if (key === 'Enter') handleEnter();
   else handleLetter(key);
+}
+
+function handleKeyDown(e) {
+    const key = e.key.toUpperCase();
+    if (key === 'BACKSPACE') handleBackspace();
+    else if (key === 'ENTER') handleEnter();
+    else handleLetter(key);
 }
 
 function handleBackspace(){
@@ -111,6 +120,11 @@ function updateKeyboardButtonColor(guess, result){
 }
 
 function handleLetter(key){
+
+    if (!/^[A-Za-z]$/.test(key)){
+        console.warn("Invalid key pressed:", key);
+        return;
+    }
     const currentRow = document.querySelectorAll('.row')[currentRowIndex];
     const tilesInRow = currentRow.children;
 
