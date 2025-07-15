@@ -1,12 +1,13 @@
 const tiles = document.getElementsByClassName("tile")
 const buttons = document.getElementsByTagName('button')
+let allWords
 let answer
 let currentRowIndex = 0;
 let currentTileIndex = 0;
 const maxGuesses = 6;
 const wordLength = 5;
 
-async function getData() {
+async function getWord() {
   const url = "https://random-word-api.herokuapp.com/word?length=5";
   try {
     const response = await fetch(url);
@@ -22,8 +23,24 @@ async function getData() {
   }
 }
 
+async function getAllWords() {
+    const url = "https://random-word-api.herokuapp.com/all";
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        allWords = data.filter(word => word.length === wordLength).map(word => word.toUpperCase());
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
-  await getData();
+  await getWord();
+  await getAllWords();
 });
 
 Array.from(buttons).forEach(element => 
@@ -74,8 +91,14 @@ function handleEnter(){
 
     const result = answerCheck(guess);
 
-    updateKeyboardButtonColor(guess,result)
+    if (result === null) {
+        // Invalid guess, do not proceed
+        return;
 
+    }
+
+    updateKeyboardButtonColor(guess,result)
+    
     for (let i = 0; i < result.length; i++) {
         tilesInRow[i].classList.add(result[i]);
     }
@@ -146,6 +169,15 @@ function answerCheck(guess){
     const result = Array(guess.length).fill('absent');
     const answerArr = answer.split('');
     const used = Array(answer.length).fill(false); // tracks matched letters
+
+    if(!allWords.includes(guess)) {
+        const currentRow = document.querySelectorAll('.row')[currentRowIndex];
+        currentRow.classList.add('shake');
+        setTimeout(() => {
+            currentRow.classList.remove('shake');
+        }, 500);
+        return null;
+    }
 
     // First pass: correct letter and position (green)
     for (let i = 0; i < guess.length; i++) {
